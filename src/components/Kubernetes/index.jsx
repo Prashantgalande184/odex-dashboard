@@ -18,7 +18,7 @@ export const EKSCard = ({ cluster }) => {
           <Anchor size={24} className="text-cyan-600 flex-shrink-0 mt-1" />
           <div className="text-left">
             <h3 className="font-bold text-gray-900 text-lg">{cluster.name}</h3>
-            <p className="text-xs text-gray-500 mt-1">EKS Cluster</p>
+            <p className="text-xs text-gray-500 mt-1">EKS Cluster1</p>
           </div>
         </div>
         <div className="flex items-center gap-3">
@@ -33,7 +33,7 @@ export const EKSCard = ({ cluster }) => {
             <div className="bg-white rounded-lg p-3 border border-gray-200">
               <div className="flex items-center gap-2 mb-2">
                 <Zap size={16} className="text-cyan-600" />
-                <span className="text-xs font-semibold text-gray-700">Nodes</span>
+                <span className="text-xs font-semibold text-gray-700">Nodes1</span>
               </div>
               <p className="text-2xl font-bold text-cyan-600">{nodes}/{desired}</p>
             </div>
