@@ -20,7 +20,7 @@ export const Dashboard = () => {
         <section className="bg-white rounded-lg p-6 border border-gray-200 mb-8 shadow-sm">
           <div className="flex items-center gap-3 mb-6">
             <Anchor size={28} className="text-cyan-600" />
-            <h2 className="text-2xl font-bold text-gray-900">Kubernetes Monitoring</h2>
+            <h2 className="text-2xl font-bold text-gray-900">Kubernetes Monitoring11111</h2>
           </div>
           <KubernetesSection k8sData={k8sData} loading={loading} />
         </section>
@@ -28,7 +28,7 @@ export const Dashboard = () => {
         <section className="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
           <div className="flex items-center gap-3 mb-6">
             <Server size={28} className="text-blue-600" />
-            <h2 className="text-2xl font-bold text-gray-900">AWS Infrastructure</h2>
+            <h2 className="text-2xl font-bold text-gray-900">AWS Infrastructure11111</h2>
           </div>
           <AWSInfraSection awsData={awsData} loading={loading} />
         </section>
