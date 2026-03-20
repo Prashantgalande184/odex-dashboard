@@ -17,7 +17,7 @@ export const Header = ({ onRefresh, loading, isUsingMockData, lastUpdated }) => 
     <header className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">🚀 Odex Infra Dashboard</h1>
+          <h1 className="text-3xl font-bold text-gray-900">🚀 Odex Infra Dashboard - Built by Prashant</h1>
           <div className="flex items-center gap-4 mt-2">
             <p className="text-xs text-gray-600">Account: {accountInfo?.accountId}</p>
             <DataStatusBadge isUsingMockData={isUsingMockData} lastUpdated={lastUpdated} />
