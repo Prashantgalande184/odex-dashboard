@@ -11,25 +11,48 @@ export const useHealthMonitor = () => {
         MONITORING_URLS.map(async (service) => {
           try {
             const start = Date.now();
-            const response = await fetch(service.url, {
-              method: 'GET',
+            // Use a CORS proxy or call your own backend
+            const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+            const response = await fetch(proxyUrl + service.url, {
+              method: 'HEAD',
               signal: AbortSignal.timeout(5000),
             });
             const responseTime = Date.now() - start;
-            const isOnline = response.status >= 200 && response.status < 300;
+            const statusCode = response.status;
+            const isOnline = statusCode >= 200 && statusCode < 300;
+            
             return { 
               ...service, 
               isOnline, 
               responseTime, 
-              statusCode: response.status 
+              statusCode 
             };
           } catch (error) {
-            return { 
-              ...service, 
-              isOnline: false, 
-              responseTime: null, 
-              statusCode: error.name === 'AbortError' ? 'TIMEOUT' : 'ERROR' 
-            };
+            // Fallback: try without proxy
+            try {
+              const start = Date.now();
+              const response = await fetch(service.url, {
+                method: 'GET',
+                signal: AbortSignal.timeout(5000),
+              });
+              const responseTime = Date.now() - start;
+              const statusCode = response.status;
+              const isOnline = statusCode >= 200 && statusCode < 300;
+              
+              return { 
+                ...service, 
+                isOnline, 
+                responseTime, 
+                statusCode 
+              };
+            } catch (fallbackError) {
+              return { 
+                ...service, 
+                isOnline: false, 
+                responseTime: null, 
+                statusCode: 'ERROR' 
+              };
+            }
           }
         })
       );
