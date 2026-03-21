@@ -11,11 +11,9 @@ export const useHealthMonitor = () => {
         MONITORING_URLS.map(async (service) => {
           try {
             const start = Date.now();
-            // Use a CORS proxy or call your own backend
-            const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
-            const response = await fetch(proxyUrl + service.url, {
-              method: 'HEAD',
-              signal: AbortSignal.timeout(5000),
+            const response = await fetch(service.url, {
+              method: 'GET',
+              signal: AbortSignal.timeout(8000),
             });
             const responseTime = Date.now() - start;
             const statusCode = response.status;
@@ -28,31 +26,19 @@ export const useHealthMonitor = () => {
               statusCode 
             };
           } catch (error) {
-            // Fallback: try without proxy
-            try {
-              const start = Date.now();
-              const response = await fetch(service.url, {
-                method: 'GET',
-                signal: AbortSignal.timeout(5000),
-              });
-              const responseTime = Date.now() - start;
-              const statusCode = response.status;
-              const isOnline = statusCode >= 200 && statusCode < 300;
-              
-              return { 
-                ...service, 
-                isOnline, 
-                responseTime, 
-                statusCode 
-              };
-            } catch (fallbackError) {
-              return { 
-                ...service, 
-                isOnline: false, 
-                responseTime: null, 
-                statusCode: 'ERROR' 
-              };
+            let statusCode = 'ERROR';
+            if (error.name === 'AbortError') {
+              statusCode = 'TIMEOUT';
+            } else if (error.message.includes('Failed to fetch')) {
+              statusCode = 'CORS_ERROR';
             }
+            
+            return { 
+              ...service, 
+              isOnline: false, 
+              responseTime: null, 
+              statusCode 
+            };
           }
         })
       );
@@ -72,7 +58,7 @@ export const useHealthMonitor = () => {
     };
 
     checkServices();
-    const interval = setInterval(checkServices, 1000);
+    const interval = setInterval(checkServices, 5000);
     return () => clearInterval(interval);
   }, []);
 

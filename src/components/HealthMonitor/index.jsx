@@ -8,6 +8,16 @@ export const HealthMonitor = () => {
     window.open(url, '_blank');
   };
 
+  const getStatusColor = (statusCode) => {
+    if (typeof statusCode === 'number') {
+      if (statusCode >= 200 && statusCode < 300) return '#4CAF50';
+      if (statusCode >= 300 && statusCode < 400) return '#2196F3';
+      if (statusCode >= 400 && statusCode < 500) return '#FF9800';
+      return '#f44336';
+    }
+    return '#f44336';
+  };
+
   return (
     <div style={{ padding: '20px', backgroundColor: '#f5f5f5', minHeight: '100vh' }}>
       <h1 style={{ color: '#333' }}>🔍 Service Health Monitor</h1>
@@ -57,11 +67,24 @@ export const HealthMonitor = () => {
             }}
           >
             <h4 style={{ margin: '0 0 10px 0', color: '#333' }}>{service.name}</h4>
-            <p style={{ margin: '5px 0', fontWeight: 'bold', color: service.isOnline ? '#4CAF50' : '#f44336' }}>
+            <p style={{ 
+              margin: '5px 0', 
+              fontWeight: 'bold', 
+              color: service.isOnline ? '#4CAF50' : '#f44336',
+              fontSize: '16px'
+            }}>
               {service.isOnline ? '🟢 Online' : '🔴 Down'}
-              <span style={{ marginLeft: '5px', fontSize: '14px' }}>
-                [{service.statusCode}]
-              </span>
+            </p>
+            <p style={{ 
+              margin: '8px 0', 
+              fontWeight: 'bold', 
+              fontSize: '18px',
+              color: getStatusColor(service.statusCode),
+              backgroundColor: 'rgba(0,0,0,0.05)',
+              padding: '8px',
+              borderRadius: '4px'
+            }}>
+              [{service.statusCode}]
             </p>
             {service.responseTime && (
               <p style={{ margin: '5px 0', fontSize: '12px', color: '#666' }}>
