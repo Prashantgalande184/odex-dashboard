@@ -4,6 +4,10 @@ import { useHealthMonitor } from '../../hooks/useHealthMonitor';
 export const HealthMonitor = () => {
   const { services, stats } = useHealthMonitor();
 
+  const handleServiceClick = (url) => {
+    window.open(url, '_blank');
+  };
+
   return (
     <div style={{ padding: '20px', backgroundColor: '#f5f5f5', minHeight: '100vh' }}>
       <h1 style={{ color: '#333' }}>🔍 Service Health Monitor</h1>
@@ -32,12 +36,24 @@ export const HealthMonitor = () => {
         {services.map((service) => (
           <div
             key={service.url}
+            onClick={() => handleServiceClick(service.url)}
             style={{
               border: service.isOnline ? '2px solid #4CAF50' : '2px solid #f44336',
               borderRadius: '8px',
               padding: '15px',
               backgroundColor: service.isOnline ? '#f1f8f4' : '#fff3f1',
               textAlign: 'center',
+              cursor: 'pointer',
+              transition: 'all 0.3s ease',
+              transform: 'scale(1)',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'scale(1.05)';
+              e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.2)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'scale(1)';
+              e.currentTarget.style.boxShadow = 'none';
             }}
           >
             <h4 style={{ margin: '0 0 10px 0', color: '#333' }}>{service.name}</h4>

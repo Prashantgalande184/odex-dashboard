@@ -1,4 +1,5 @@
 ﻿export const MONITORING_URLS = [
+  { name: 'in.odex.global', url: 'https://in.odexglobal.com/' },
   { name: 'QC Auth', url: 'https://qctest.odexglobal.com/auth' },
   { name: 'QC API', url: 'https://qctest.odexglobal.com/api' },
   { name: 'QC OPC', url: 'https://qctest.odexglobal.com/opc' },
