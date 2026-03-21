@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { useHealthMonitor } from '../../hooks/useHealthMonitor';
 
 export const HealthMonitor = () => {
@@ -36,7 +36,7 @@ export const HealthMonitor = () => {
           <div
             key={service.url}
             style={{
-              border: `2px solid ${service.isOnline ? '#4CAF50' : '#f44336'}`,
+              border: 2px solid ,
               borderRadius: '8px',
               padding: '15px',
               backgroundColor: service.isOnline ? '#f1f8f4' : '#fff3f1',
@@ -46,6 +46,9 @@ export const HealthMonitor = () => {
             <h4 style={{ margin: '0 0 10px 0', color: '#333' }}>{service.name}</h4>
             <p style={{ margin: '5px 0', fontWeight: 'bold', color: service.isOnline ? '#4CAF50' : '#f44336' }}>
               {service.isOnline ? '🟢 Online' : '🔴 Down'}
+              <span style={{ marginLeft: '5px', fontSize: '14px' }}>
+                [{service.statusCode}]
+              </span>
             </p>
             {service.responseTime && (
               <p style={{ margin: '5px 0', fontSize: '12px', color: '#666' }}>
