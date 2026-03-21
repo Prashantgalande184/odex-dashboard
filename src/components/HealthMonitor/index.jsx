@@ -6,10 +6,8 @@ export const HealthMonitor = () => {
 
   return (
     <div style={{ padding: '20px', backgroundColor: '#f5f5f5', minHeight: '100vh' }}>
-      {/* Header */}
       <h1 style={{ color: '#333' }}>🔍 Service Health Monitor</h1>
 
-      {/* Stats */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '15px', marginBottom: '20px' }}>
         <div style={{ padding: '20px', backgroundColor: '#e3f2fd', borderRadius: '8px', textAlign: 'center' }}>
           <h3 style={{ color: '#1976d2', margin: 0 }}>Total</h3>
@@ -29,14 +27,13 @@ export const HealthMonitor = () => {
         </div>
       </div>
 
-      {/* Service Grid */}
       <h2>Service Status</h2>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '15px' }}>
         {services.map((service) => (
           <div
             key={service.url}
             style={{
-              border: 2px solid ,
+              border: service.isOnline ? '2px solid #4CAF50' : '2px solid #f44336',
               borderRadius: '8px',
               padding: '15px',
               backgroundColor: service.isOnline ? '#f1f8f4' : '#fff3f1',
