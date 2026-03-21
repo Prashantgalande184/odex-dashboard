@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { useState, useEffect } from 'react';
 import { MONITORING_URLS } from '../utils/monitoringConfig';
 
@@ -43,3 +44,34 @@ export const useHealthMonitor = () => {
 
   return { services, stats };
 };
+=======
+import { useEffect, useState } from 'react';
+
+const useHealthMonitor = (url) => {
+  const [isHealthy, setIsHealthy] = useState(null);
+
+  useEffect(() => {
+    const checkHealth = async () => {
+      try {
+        const response = await fetch(url);
+        if (response.ok) {
+          setIsHealthy(true);
+        } else {
+          setIsHealthy(false);
+        }
+      } catch (error) {
+        setIsHealthy(false);
+      }
+    };
+
+    checkHealth();
+    const interval = setInterval(checkHealth, 30000); // Check every 30 seconds
+
+    return () => clearInterval(interval);
+  }, [url]);
+
+  return isHealthy;
+};
+
+export default useHealthMonitor;
+>>>>>>> 1c6613fe6f444d0d145a9f0418a61e3c91c7b3ab
