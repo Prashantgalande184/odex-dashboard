@@ -1,9 +1,22 @@
-// Monitoring URLs configuration
-
-const monitoringConfig = {
-    serviceA: "https://monitoring.serviceA.com",
-    serviceB: "https://monitoring.serviceB.com",
-    serviceC: "https://monitoring.serviceC.com"
-};
-
-module.exports = monitoringConfig;
+﻿export const MONITORING_URLS = [
+  { name: 'QC Auth', url: 'http://qctest.odexglobal.com/auth' },
+  { name: 'QC API', url: 'http://qctest.odexglobal.com/api' },
+  { name: 'QC OPC', url: 'http://qctest.odexglobal.com/opc' },
+  { name: 'QC Zipkin', url: 'http://qctest.odexglobal.com/zipkin' },
+  { name: 'QC Kibana', url: 'http://qctest.odexglobal.com/kibana' },
+  { name: 'QC MFT', url: 'http://qctest.odexglobal.com/mft' },
+  { name: 'QC CPP', url: 'http://qctest.odexglobal.com/cpp' },
+  { name: 'QC HL', url: 'http://qctest.odexglobal.com/hl' },
+  { name: 'QC Main', url: 'http://qctest.odexglobal.com' },
+  { name: 'QC Kafka UI', url: 'http://qckafkaui.odexglobal.com' },
+  { name: 'QC Grafana', url: 'http://qcgrafana.odexglobal.com' },
+  { name: 'QC Payments', url: 'http://qc-payments.odexglobal.com' },
+  { name: 'QC Payments ALT', url: 'http://www.qctest.odexglobal.com' },
+  { name: 'TPDCS OPC Auth', url: 'http://qctest.tpdcs.com/opc-auth' },
+  { name: 'TPDCS API', url: 'http://qctest.tpdcs.com/api' },
+  { name: 'TPDCS Main', url: 'http://qctest.tpdcs.com' },
+  { name: 'TPDCS ALT', url: 'http://www.qctest.tpdcs.com' },
+  { name: 'QC Test 2786', url: 'http://qctest2786.odexglobal.com/api' },
+  { name: 'QC Payment Svc', url: 'http://qctest-payment.odexglobal.com/api' },
+  { name: 'in.odex.global', url: 'https://in.odex.global.com' },
+];
