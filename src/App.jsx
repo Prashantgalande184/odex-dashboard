@@ -1,8 +1,9 @@
 ﻿import React, { useState, useEffect } from 'react';
 import './styles/globals.css';
 import { Dashboard } from './components/Dashboard/index.jsx';
-import { HealthMonitor } from './components/HealthMonitor/index.jsx';
+// import { HealthMonitor } from './components/HealthMonitor/index.jsx';
 import { initializeConnection } from './connection/ConnectionManager';
+import { HealthMonitor } from './components/HealthMonitor';
 
 function App() {
   const [currentView, setCurrentView] = useState('monitor');
