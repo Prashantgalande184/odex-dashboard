@@ -12,19 +12,31 @@ export const useHealthMonitor = () => {
           try {
             const start = Date.now();
             const response = await fetch(service.url, {
-              method: 'HEAD',
-              mode: 'no-cors',
+              method: 'GET',
               signal: AbortSignal.timeout(5000),
             });
             const responseTime = Date.now() - start;
-            return { ...service, isOnline: true, responseTime, statusCode: 200 };
+            const isOnline = response.status >= 200 && response.status < 300;
+            return { 
+              ...service, 
+              isOnline, 
+              responseTime, 
+              statusCode: response.status 
+            };
           } catch (error) {
-            return { ...service, isOnline: false, responseTime: null, statusCode: 'ERROR' };
+            return { 
+              ...service, 
+              isOnline: false, 
+              responseTime: null, 
+              statusCode: error.name === 'AbortError' ? 'TIMEOUT' : 'ERROR' 
+            };
           }
         })
       );
 
-      const results = checks.map((c) => (c.status === 'fulfilled' ? c.value : { ...c, isOnline: false, statusCode: 'TIMEOUT' }));
+      const results = checks.map((c) => 
+        c.status === 'fulfilled' ? c.value : { ...c.reason, isOnline: false, statusCode: 'FAILED' }
+      );
       setServices(results);
 
       const online = results.filter((s) => s.isOnline).length;
@@ -37,7 +49,7 @@ export const useHealthMonitor = () => {
     };
 
     checkServices();
-    const interval = setInterval(checkServices, 30000);
+    const interval = setInterval(checkServices, 1000);
     return () => clearInterval(interval);
   }, []);
 
