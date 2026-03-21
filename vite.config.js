@@ -2,15 +2,15 @@
 import react from '@vitejs/plugin-react'
 
 export default defineConfig({
-  base: '/odex-dashboard/',
+  base: '/',
   plugins: [react()],
   server: {
     port: 5173,
-    open: true
+    open: true,
   },
   build: {
     outDir: 'docs',
     minify: 'esbuild',
-    sourcemap: false
-  }
+    sourcemap: false,
+  },
 })
