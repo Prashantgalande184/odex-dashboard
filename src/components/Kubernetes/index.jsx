@@ -1,17 +1,29 @@
-﻿import React, { useState } from 'react';
-import { Anchor, Zap, Package, ChevronDown, AlertCircle } from 'lucide-react';
-import { StatusBadge, LoadingSpinner } from '../Common/index.jsx';
+import React, { useState } from "react";
+import { Anchor, Zap, Package, ChevronDown, AlertCircle } from "lucide-react";
+import { StatusBadge, LoadingSpinner } from "../Common/index.jsx";
 
 export const EKSCard = ({ cluster }) => {
   const [expanded, setExpanded] = useState(false);
-  const [nodes, desired] = cluster.nodes.split('/').map(Number);
+  
+  // Safely extract nodes and pods
+  let nodes = 1;
+  let desired = 1;
+  let pods = cluster.pods || cluster.memory || 0;
+  
+  if (cluster.nodes && typeof cluster.nodes === "string" && cluster.nodes.includes("/")) {
+    [nodes, desired] = cluster.nodes.split("/").map(Number);
+  } else if (typeof cluster.nodes === "number") {
+    nodes = cluster.nodes;
+    desired = cluster.nodes;
+  }
+  
   const nodeHealth = (nodes / desired) * 100;
   const isHealthy = nodes === desired;
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 hover:shadow-lg transition-all overflow-hidden">
-      <button 
-        onClick={() => setExpanded(!expanded)} 
+      <button
+        onClick={() => setExpanded(!expanded)}
         className="w-full p-4 flex items-start justify-between hover:bg-gray-50"
       >
         <div className="flex items-start gap-3 flex-1">
@@ -22,8 +34,8 @@ export const EKSCard = ({ cluster }) => {
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <StatusBadge status={cluster.health} size="sm" />
-          <ChevronDown size={20} className={`text-gray-400 transition-transform ${expanded ? 'rotate-180' : ''}`} />
+          <StatusBadge status={cluster.status || "healthy"} size="sm" />
+          <ChevronDown size={20} className={`text-gray-400 transition-transform ${expanded ? "rotate-180" : ""}`} />
         </div>
       </button>
 
@@ -33,7 +45,7 @@ export const EKSCard = ({ cluster }) => {
             <div className="bg-white rounded-lg p-3 border border-gray-200">
               <div className="flex items-center gap-2 mb-2">
                 <Zap size={16} className="text-cyan-600" />
-                <span className="text-xs font-semibold text-gray-700">Nodes1</span>
+                <span className="text-xs font-semibold text-gray-700">Nodes</span>
               </div>
               <p className="text-2xl font-bold text-cyan-600">{nodes}/{desired}</p>
             </div>
@@ -41,9 +53,9 @@ export const EKSCard = ({ cluster }) => {
             <div className="bg-white rounded-lg p-3 border border-gray-200">
               <div className="flex items-center gap-2 mb-2">
                 <Package size={16} className="text-blue-600" />
-                <span className="text-xs font-semibold text-gray-700">Pods</span>
+                <span className="text-xs font-semibold text-gray-700">CPU</span>
               </div>
-              <p className="text-2xl font-bold text-blue-600">{cluster.pods}</p>
+              <p className="text-2xl font-bold text-blue-600">{cluster.cpu || 0}%</p>
             </div>
           </div>
 
@@ -53,8 +65,8 @@ export const EKSCard = ({ cluster }) => {
               <span className="text-sm font-bold text-cyan-600">{nodeHealth.toFixed(0)}%</span>
             </div>
             <div className="w-full bg-gray-300 rounded-full h-3">
-              <div 
-                className={`h-full rounded-full ${isHealthy ? 'bg-green-500' : 'bg-yellow-500'}`}
+              <div
+                className={`h-full rounded-full ${isHealthy ? "bg-green-500" : "bg-yellow-500"}`}
                 style={{ width: `${nodeHealth}%` }}
               ></div>
             </div>
@@ -78,16 +90,22 @@ export const KubernetesSection = ({ k8sData, loading }) => {
     return <p className="text-center text-gray-500 py-8">No clusters found</p>;
   }
 
-  const totalNodes = k8sData.eks.reduce((sum, c) => sum + parseInt(c.nodes.split('/')[0]), 0);
-  const totalPods = k8sData.eks.reduce((sum, c) => sum + c.pods, 0);
-  const healthyClusters = k8sData.eks.filter(c => c.health?.toLowerCase() === 'healthy').length;
+  const totalNodes = k8sData.eks.reduce((sum, c) => {
+    if (c.nodes && typeof c.nodes === "string" && c.nodes.includes("/")) {
+      return sum + parseInt(c.nodes.split("/")[0]);
+    }
+    return sum + (typeof c.nodes === "number" ? c.nodes : 0);
+  }, 0);
+  
+  const totalPods = k8sData.eks.reduce((sum, c) => sum + (c.pods || 0), 0);
+  const healthyClusters = k8sData.eks.filter(c => c.status?.toLowerCase() === "running" || c.health?.toLowerCase() === "healthy").length;
 
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-3 gap-4">
         <div className="bg-gradient-to-br from-cyan-50 to-cyan-100 rounded-lg p-4 border border-cyan-200">
           <p className="text-gray-600 text-sm font-medium">Total Nodes</p>
-          <p className="text-3xl font-bold text-cyan-600 mt-2">{totalNodes}</p>
+          <p className="text-3xl font-bold text-cyan-600 mt-2">{totalNodes || k8sData.eks.length}</p>
         </div>
         <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4 border border-blue-200">
           <p className="text-gray-600 text-sm font-medium">Total Pods</p>

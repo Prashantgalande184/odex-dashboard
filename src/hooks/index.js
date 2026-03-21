@@ -1,6 +1,6 @@
-﻿import { useState, useCallback, useEffect } from 'react';
-import { getConnection } from '../connection/ConnectionManager';
-import { mockAwsData, mockK8sData } from '../utils/mockData';
+import { useState, useCallback, useEffect } from "react";
+import { getConnection } from "../connection/ConnectionManager";
+import { mockAwsData, mockK8sData } from "../utils/mockData";
 
 export const useInfraData = (refreshInterval = 30000) => {
   const [awsData, setAwsData] = useState({
@@ -12,11 +12,73 @@ export const useInfraData = (refreshInterval = 30000) => {
   const [k8sData, setK8sData] = useState({
     eks: []
   });
-  
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [lastUpdated, setLastUpdated] = useState(new Date());
   const [isUsingMockData, setIsUsingMockData] = useState(false);
+
+  const transformApiData = (rawData) => {
+    console.log("?? RAW DATA:", rawData);
+    console.log("?? Data Keys:", Object.keys(rawData));
+    
+    // Get items from response
+    let items = [];
+    if (Array.isArray(rawData)) {
+      items = rawData;
+    } else if (rawData && typeof rawData === "object") {
+      // Try to extract array from object
+      items = rawData.data || rawData.items || rawData.instances || Object.values(rawData).flat().filter(v => typeof v === "object");
+    }
+    
+    console.log("? Extracted items count:", items.length);
+    console.log("?? First item:", items[0]);
+
+    if (!Array.isArray(items) || items.length === 0) {
+      console.warn("?? No valid items found");
+      return null;
+    }
+
+    const ec2Instances = items.filter(item => item.instance_id && !item.name?.includes("DB"));
+    const databases = items.filter(item => item.name?.includes("DB") || item.name?.includes("database"));
+    const k8sServices = items.filter(item => item.name?.includes("ODX-SRV-DEV"));
+
+    console.log("? Categorized:", { ec2: ec2Instances.length, db: databases.length, k8s: k8sServices.length });
+
+    return {
+      aws: {
+        ec2: ec2Instances.map(item => ({
+          id: item.instance_id,
+          name: item.name,
+          status: item.status,
+          cpu: item.cpu || 0,
+          memory: item.memory || 0,
+          uptime: item.since
+        })),
+        rds: databases.map(item => ({
+          id: item.instance_id,
+          name: item.name,
+          status: item.status,
+          storage: item.storage || 0,
+          engine: item.engine || "Unknown"
+        })),
+        website: {
+          name: "Odex Dashboard",
+          status: "online",
+          health: "Healthy"
+        }
+      },
+      k8s: {
+        eks: k8sServices.map(item => ({
+          id: item.instance_id,
+          name: item.name,
+          status: item.status,
+          cpu: item.cpu || 0,
+          memory: item.memory || 0
+        }))
+      }
+    };
+  };
 
   const fetchData = useCallback(async () => {
     try {
@@ -24,45 +86,27 @@ export const useInfraData = (refreshInterval = 30000) => {
       setError(null);
       const connection = getConnection();
 
-      console.log('🔄 Fetching infrastructure data...');
+      console.log("?? Fetching infrastructure data...");
 
-      // Call your API - it returns data directly
-      const apiData = await connection.callInfraAPI();
-      
-      console.log('✅ Full API Response:', apiData);
+      const rawData = await connection.callInfraAPI();
 
-      // Your API returns:
-      // { ec2: [], rds: [], eks: [], website: {} }
-      // We need to structure it for our app
-      
-      const awsStructured = {
-        ec2: apiData.ec2 || [],
-        rds: apiData.rds || [],
-        website: apiData.website || {}
-      };
+      const transformed = transformApiData(rawData);
 
-      const k8sStructured = {
-        eks: apiData.eks || []
-      };
+      if (!transformed) {
+        throw new Error("Failed to transform API data");
+      }
 
-      setAwsData(awsStructured);
-      setK8sData(k8sStructured);
+      setAwsData(transformed.aws);
+      setK8sData(transformed.k8s);
       setLastUpdated(new Date());
       setIsUsingMockData(false);
-      
-      console.log('✅ Data successfully loaded from API');
-      console.log('EC2 Instances:', awsStructured.ec2.length);
-      console.log('RDS Databases:', awsStructured.rds.length);
-      console.log('EKS Clusters:', k8sStructured.eks.length);
+
+      console.log("? Dashboard updated with real data");
 
     } catch (err) {
-      console.warn('⚠️ API Error:', err.message);
-      console.log('📊 Using mock data as fallback');
-      
+      console.warn("?? API Error:", err.message);
       setError(err.message);
       setIsUsingMockData(true);
-      
-      // Fallback to mock data
       setAwsData(mockAwsData);
       setK8sData(mockK8sData);
     } finally {

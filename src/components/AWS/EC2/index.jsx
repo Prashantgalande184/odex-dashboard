@@ -1,15 +1,22 @@
-﻿import React, { useState } from 'react';
-import { Server, Cpu, Clock, ChevronDown, AlertCircle } from 'lucide-react';
-import { StatusBadge } from '../../Common/index.jsx';
+import React, { useState } from "react";
+import { Server, Cpu, Clock, ChevronDown, AlertCircle } from "lucide-react";
+import { StatusBadge } from "../../Common/index.jsx";
 
 export const EC2Card = ({ instance }) => {
   const [expanded, setExpanded] = useState(false);
-  const cpuColor = instance.cpu > 70 ? 'text-red-500' : instance.cpu > 50 ? 'text-yellow-500' : 'text-green-500';
+  const cpuColor = instance.cpu > 70 ? "text-red-500" : instance.cpu > 50 ? "text-yellow-500" : "text-green-500";
+
+  // Safely format the launch time
+  const formatTime = (timeStr) => {
+    if (!timeStr) return "N/A";
+    if (typeof timeStr === "string") return timeStr.split(" ")[0]; // Get just the date
+    return "N/A";
+  };
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 hover:shadow-lg transition-all duration-200 overflow-hidden">
-      <button 
-        onClick={() => setExpanded(!expanded)} 
+      <button
+        onClick={() => setExpanded(!expanded)}
         className="w-full p-4 flex items-start justify-between hover:bg-gray-50"
       >
         <div className="flex items-start gap-3 flex-1">
@@ -21,9 +28,9 @@ export const EC2Card = ({ instance }) => {
         </div>
         <div className="flex items-center gap-3">
           <StatusBadge status={instance.status} size="sm" />
-          <ChevronDown 
-            size={20} 
-            className={`text-gray-400 transition-transform ${expanded ? 'rotate-180' : ''}`} 
+          <ChevronDown
+            size={20}
+            className={`text-gray-400 transition-transform ${expanded ? "rotate-180" : ""}`}
           />
         </div>
       </button>
@@ -40,11 +47,11 @@ export const EC2Card = ({ instance }) => {
               <span className={`text-2xl font-bold ${cpuColor}`}>{instance.cpu}%</span>
             </div>
             <div className="w-full bg-gray-300 rounded-full h-2">
-              <div 
+              <div
                 className={`h-full rounded-full ${
-                  instance.cpu > 70 ? 'bg-red-500' : 
-                  instance.cpu > 50 ? 'bg-yellow-500' : 
-                  'bg-green-500'
+                  instance.cpu > 70 ? "bg-red-500" :
+                  instance.cpu > 50 ? "bg-yellow-500" :
+                  "bg-green-500"
                 }`}
                 style={{ width: `${instance.cpu}%` }}
               ></div>
@@ -54,13 +61,13 @@ export const EC2Card = ({ instance }) => {
           {/* Launch Time */}
           <div className="flex items-center gap-2 text-sm">
             <Clock size={16} className="text-gray-500" />
-            <span className="text-gray-700">Launched: <span className="font-semibold">{instance.since}</span></span>
+            <span className="text-gray-700">Launched: <span className="font-semibold">{formatTime(instance.uptime || instance.since)}</span></span>
           </div>
 
           {/* Type */}
           <div className="text-sm">
             <span className="text-gray-600">Instance Type:</span>
-            <span className="font-semibold text-gray-900 ml-2">{instance.type || 't2.micro'}</span>
+            <span className="font-semibold text-gray-900 ml-2">{instance.type || "t2.micro"}</span>
           </div>
 
           {/* Warning if CPU high */}
