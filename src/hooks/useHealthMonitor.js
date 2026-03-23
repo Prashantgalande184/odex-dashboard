@@ -1,47 +1,43 @@
-﻿// src/hooks/useHealthMonitor.js
 import { useState, useEffect } from 'react';
-
-const LAMBDA_URL = 'https://4k2dmu2czrcrwcygjhq4ns5pne0uxjif.lambda-url.ap-south-1.on.aws/';
+import { MONITORING_URLS } from '../utils/monitoringConfig';
 
 export const useHealthMonitor = () => {
   const [services, setServices] = useState([]);
-  const [stats, setStats] = useState({ 
-    total: 0, 
-    online: 0, 
-    offline: 0, 
-    uptime: 0,
-    ec2: [],
-    rds: [],
-    eks: []
-  });
+  const [stats, setStats] = useState({ total: 0, online: 0, offline: 0, uptime: 0 });
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch(LAMBDA_URL);
-        const data = await response.json();
-        const result = JSON.parse(data.body);
+    const checkServices = async () => {
+      const checks = await Promise.allSettled(
+        MONITORING_URLS.map(async (service) => {
+          try {
+            const start = Date.now();
+            const response = await fetch(service.url, {
+              method: 'HEAD',
+              mode: 'no-cors',
+              signal: AbortSignal.timeout(5000),
+            });
+            const responseTime = Date.now() - start;
+            return { ...service, isOnline: true, responseTime, statusCode: 200 };
+          } catch (error) {
+            return { ...service, isOnline: false, responseTime: null, statusCode: 'ERROR' };
+          }
+        })
+      );
 
-        // Set website data
-        setServices(result.websites.sites);
+      const results = checks.map((c) => (c.status === 'fulfilled' ? c.value : { ...c, isOnline: false, statusCode: 'TIMEOUT' }));
+      setServices(results);
 
-        // Set all stats
-        setStats({
-          total: result.websites.total,
-          online: result.websites.online,
-          offline: result.websites.offline,
-          uptime: result.websites.uptime,
-          ec2: result.ec2,
-          rds: result.rds,
-          eks: result.eks
-        });
-      } catch (error) {
-        console.error('Failed to fetch health data:', error);
-      }
+      const online = results.filter((s) => s.isOnline).length;
+      setStats({
+        total: results.length,
+        online,
+        offline: results.length - online,
+        uptime: ((online / results.length) * 100).toFixed(2),
+      });
     };
 
-    fetchData();
-    const interval = setInterval(fetchData, 10000); // Refresh every 10 seconds
+    checkServices();
+    const interval = setInterval(checkServices, 30000); // Check every 30s
     return () => clearInterval(interval);
   }, []);
 
